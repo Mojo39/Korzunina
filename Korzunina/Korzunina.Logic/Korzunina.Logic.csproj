@@ -42,6 +42,8 @@
   <ItemGroup>
     <Compile Include="CreateListOfKe.cs" />
     <Compile Include="Matrix.cs" />
+    <Compile Include="Cholesky.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sheet.cs" />
