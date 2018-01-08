@@ -7,9 +7,9 @@ namespace Korzunina.Logic
     {
         private const int tetrahedronCount = 6;
 
-        private double hx, hy, hz;
-        private int Nx, Ny, Nz;
-        private int ZYPointsCount;
+        private double _hx, _hy, _hz;
+        private int _Nx, _Ny, _Nz;
+        private int _ZYPointsCount;
 
         public int pointsCount { get; private set; }
         public int BlocksCount { get; private set; }
@@ -32,16 +32,16 @@ namespace Korzunina.Logic
         
         public Sheet(double hx, double hy, double hz, int Nx, int Ny, int Nz)
         {
-            this.hx = hx;
-            this.hy = hy;
-            this.hz = hz;
-            this.Nx = Nx;
-            this.Ny = Ny;
-            this.Nz = Nz;
+            this._hx = hx;
+            this._hy = hy;
+            this._hz = hz;
+            this._Nx = Nx;
+            this._Ny = Ny;
+            this._Nz = Nz;
 
             pointsCount = (Nx + 1) * (Ny + 1) * (Nz + 1);
             BlocksCount = Nx * Ny * Nz;
-            ZYPointsCount = (Ny + 1) * (Nz + 1);
+            _ZYPointsCount = (Ny + 1) * (Nz + 1);
             Volume = hx * hy * hz * BlocksCount;
 
             coords = new List<Point>();
@@ -57,15 +57,15 @@ namespace Korzunina.Logic
             int pointNumber = 0;
             int blockNumber = 0;
 
-            for (int xIter = 0; xIter <= Nx; xIter++)
+            for (int xIter = 0; xIter <= _Nx; xIter++)
             {
-                for (int yIter = 0; yIter <= Ny; yIter++)
+                for (int yIter = 0; yIter <= _Ny; yIter++)
                 {
-                    for (int zIter = 0; zIter <= Nz; zIter++)
+                    for (int zIter = 0; zIter <= _Nz; zIter++)
                     {
-                        coords.Add(new Point(hx * xIter, hy * yIter, hz * zIter));
+                        coords.Add(new Point(_hx * xIter, _hy * yIter, _hz * zIter));
 
-                        if (zIter != Nz && yIter != Ny && xIter != Nx)
+                        if (zIter != _Nz && yIter != _Ny && xIter != _Nx)
                         {
                             AddBlockToAdjacencyMatrix(pointNumber, blockNumber);
                             blockNumber++;
@@ -81,10 +81,10 @@ namespace Korzunina.Logic
         {
             int i, j, l, k, p, q, s, r;
 
-            p = pointNumber;    q = ZYPointsCount + p;
-            i = p + 1;          j = ZYPointsCount + i;
-            s = p + (Nz + 1);   r = ZYPointsCount + s;
-            l = s + 1;          k = ZYPointsCount + l;
+            p = pointNumber;    q = _ZYPointsCount + p;
+            i = p + 1;          j = _ZYPointsCount + i;
+            s = p + (_Nz + 1);   r = _ZYPointsCount + s;
+            l = s + 1;          k = _ZYPointsCount + l;
 
             int row = blockNumber * tetrahedronCount;
 

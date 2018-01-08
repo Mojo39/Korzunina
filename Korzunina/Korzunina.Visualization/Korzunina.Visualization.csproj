@@ -52,10 +52,8 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logic\Camera.cs" />
-    <Compile Include="Logic\Draw.cs" />
-    <Compile Include="Logic\Matrix.cs" />
-    <Compile Include="Logic\VectorWork.cs" />
+    <Compile Include="DrawLogic\Camera.cs" />
+    <Compile Include="DrawLogic\Draw.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -79,6 +77,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Korzunina.Logic\Korzunina.Logic.csproj">
+      <Project>{5D57D992-C6C5-42D9-A834-24A6CB817E0B}</Project>
+      <Name>Korzunina.Logic</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

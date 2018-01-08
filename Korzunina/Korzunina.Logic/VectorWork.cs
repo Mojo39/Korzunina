@@ -1,14 +1,15 @@
 ﻿using System;
 
-namespace Korzunina.Visualization.Logic
+namespace Korzunina.Logic
 {
-    static class VectorWork
+    public static class VectorWork
     {
         public static double Norma(double[] a)
         {
             double norma = 0;
-            for (int i = 0; i < a.GetLength(0); i++)
+            for (int i = 0; i < a.Length; i++)
                 norma += Math.Pow(a[i], 2);
+
             return Math.Sqrt(norma);
         }
 
@@ -24,7 +25,7 @@ namespace Korzunina.Visualization.Logic
         public static double q(double[] a, double[] b)
         {
             double qq = 0;
-            for (int i = 0; i < a.GetLength(0); i++)
+            for (int i = 0; i < a.Length; i++)
                 qq += Math.Pow(b[i] - a[i], 2);
             return Math.Sqrt(qq);
         }
