@@ -1,63 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace korzunina
+namespace Korzunina.Logic
 {
-    class Sheet
+    public class Sheet
     {
         private const int tetrahedronCount = 6;
 
         private double hx, hy, hz;
         private int Nx, Ny, Nz;
+        private int ZYPointsCount;
 
-        private int pointsCount, blocksCount, ZYPointsCount;
+        public int pointsCount { get; private set; }
+        public int BlocksCount { get; private set; }
 
         private List<Point> coords;
-
-        private int[,] adj;
-        private Dictionary<int, List<int>> adjPoints;
-        private int bandWidth;
-        private double volume;
         
+        public int BandWidth { get; private set; }
+        public double Volume { get; private set; }
+
         public List<Point> Coordinates
         {
             get { return coords; }           
         }
 
         //Матрица смежности
-        public int[,] AdjacencyMatrix
-        {
-            get { return adj; }           
-        }
+        public int[,] AdjacencyMatrix { get; private set; }
 
         //Соседние узлы каждой точки
-        public Dictionary<int, List<int>> AdjacentPoints
-        {
-            get { return adjPoints; }
-        }
-
-        public int BandWidth
-        {
-            get { return bandWidth; }            
-        }
-
-        public double Volume
-        {
-            get { return volume; }
-        }
-
-        public int BlocksCount
-        {
-            get { return blocksCount; }
-        }
-
-        public int PointsCount
-        {
-            get { return pointsCount; }
-        }
-
+        public Dictionary<int, List<int>> AdjacentPoints { get; private set; }
+        
         public Sheet(double hx, double hy, double hz, int Nx, int Ny, int Nz)
         {
             this.hx = hx;
@@ -68,13 +40,13 @@ namespace korzunina
             this.Nz = Nz;
 
             pointsCount = (Nx + 1) * (Ny + 1) * (Nz + 1);
-            blocksCount = Nx * Ny * Nz;
+            BlocksCount = Nx * Ny * Nz;
             ZYPointsCount = (Ny + 1) * (Nz + 1);
-            volume = hx * hy * hz * blocksCount;
+            Volume = hx * hy * hz * BlocksCount;
 
             coords = new List<Point>();
-            adj = new int[blocksCount * tetrahedronCount, 4];
-            adjPoints = new Dictionary<int, List<int>>(pointsCount);
+            AdjacencyMatrix = new int[BlocksCount * tetrahedronCount, 4];
+            AdjacentPoints = new Dictionary<int, List<int>>(pointsCount);
 
             CalculatePointsAndAdjacencyMatrix();
             CalculateBandWidth();
@@ -116,12 +88,12 @@ namespace korzunina
 
             int row = blockNumber * tetrahedronCount;
 
-            adj[row, 0] = j; adj[row, 1] = l; adj[row, 2] = k; adj[row, 3] = q; ++row;
-            adj[row, 0] = s; adj[row, 1] = r; adj[row, 2] = k; adj[row, 3] = q; ++row;
-            adj[row, 0] = s; adj[row, 1] = k; adj[row, 2] = l; adj[row, 3] = q; ++row;
-            adj[row, 0] = i; adj[row, 1] = l; adj[row, 2] = j; adj[row, 3] = p; ++row;
-            adj[row, 0] = q; adj[row, 1] = j; adj[row, 2] = l; adj[row, 3] = p; ++row;
-            adj[row, 0] = q; adj[row, 1] = l; adj[row, 2] = s; adj[row, 3] = p;
+            AdjacencyMatrix[row, 0] = j; AdjacencyMatrix[row, 1] = l; AdjacencyMatrix[row, 2] = k; AdjacencyMatrix[row, 3] = q; ++row;
+            AdjacencyMatrix[row, 0] = s; AdjacencyMatrix[row, 1] = r; AdjacencyMatrix[row, 2] = k; AdjacencyMatrix[row, 3] = q; ++row;
+            AdjacencyMatrix[row, 0] = s; AdjacencyMatrix[row, 1] = k; AdjacencyMatrix[row, 2] = l; AdjacencyMatrix[row, 3] = q; ++row;
+            AdjacencyMatrix[row, 0] = i; AdjacencyMatrix[row, 1] = l; AdjacencyMatrix[row, 2] = j; AdjacencyMatrix[row, 3] = p; ++row;
+            AdjacencyMatrix[row, 0] = q; AdjacencyMatrix[row, 1] = j; AdjacencyMatrix[row, 2] = l; AdjacencyMatrix[row, 3] = p; ++row;
+            AdjacencyMatrix[row, 0] = q; AdjacencyMatrix[row, 1] = l; AdjacencyMatrix[row, 2] = s; AdjacencyMatrix[row, 3] = p;
 
             AddAdjecentPoints(i, j, l, k, p, q, s, r);
         }
@@ -139,34 +111,35 @@ namespace korzunina
         private void ConnectPoints(int point, int[] adjecentPoints)
         {
             List<int> points = new List<int>(6);
-            if (adjPoints.ContainsKey(point))
-                adjPoints.TryGetValue(point, out points);
-            else adjPoints.Add(point, null);
+            if (AdjacentPoints.ContainsKey(point))
+                AdjacentPoints.TryGetValue(point, out points);
+            else AdjacentPoints.Add(point, null);
 
             for (int i = 0; i < adjecentPoints.Length; i++)
             {
-                if (!points.Contains(adjecentPoints[i])) points.Add(adjecentPoints[i]);
+                if (!points.Contains(adjecentPoints[i]))
+                    points.Add(adjecentPoints[i]);
             }         
 
             points.TrimExcess();
-            adjPoints[point] = points;
+            AdjacentPoints[point] = points;
         }
 
         private void CalculateBandWidth()
         {
             int maxDifferenceInMatrix = 0;
 
-            for (int i = 0; i < adj.GetLength(0); i++)
+            for (int i = 0; i < AdjacencyMatrix.GetLength(0); i++)
             {
                 int maxDifferenceInRow = 0;
 
-                for (int j = 0; j < adj.GetLength(1); j++)
+                for (int j = 0; j < AdjacencyMatrix.GetLength(1); j++)
                 {                   
-                    for (int k = j+1; k < adj.GetLength(1); k++)
+                    for (int k = j+1; k < AdjacencyMatrix.GetLength(1); k++)
                     {
-                        if (Math.Abs(adj[i, j] - adj[i, k]) > maxDifferenceInRow)
+                        if (Math.Abs(AdjacencyMatrix[i, j] - AdjacencyMatrix[i, k]) > maxDifferenceInRow)
                         {
-                            maxDifferenceInRow = Math.Abs(adj[i, j] - adj[i, k]);
+                            maxDifferenceInRow = Math.Abs(AdjacencyMatrix[i, j] - AdjacencyMatrix[i, k]);
                         }
                     }
                 }
@@ -177,7 +150,7 @@ namespace korzunina
                 }
             }
 
-            bandWidth = maxDifferenceInMatrix;
+            BandWidth = maxDifferenceInMatrix;
         }
     }
 }
