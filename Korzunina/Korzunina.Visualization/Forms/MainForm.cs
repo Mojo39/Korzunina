@@ -16,15 +16,20 @@ namespace Korzunina.Visualization
     {
         private Draw _draw = new Draw();
         private Camera _camera = new Camera();
-        private Matrix map = new Matrix("..\\..\\map.txt");               // начальная карта вершин
-        //private Matrix edges = new Matrix("..\\..\\edges.txt");         
-        private Matrix edges;                                             // карта ребер
-        private Matrix verges = new Matrix("..\\..\\verges.txt");         // карта граней
+        private Matrix _map = TestData.RealMapDots;
+        private Dictionary<int, List<int>> _adjacentPointsDic = TestData.AdjacentPointsDic;
+
         private bool _move = false;
         public Form1()
         {
             InitializeComponent();
             Buf();
+
+            _draw.W = ClientSize.Width;
+            _draw.H = ClientSize.Height;
+            _draw.setPixelH();
+
+            MouseWheel += Form1_MouseWheel;
         }
 
         private void Buf()
@@ -35,8 +40,13 @@ namespace Korzunina.Visualization
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-
+            _draw.W = ClientSize.Width;
+            _draw.H = ClientSize.Height;
+            _draw.drawAxis(sender, e, _camera);
+            _draw.drawModel(sender, e, _camera.CreatProjectMatrix(_map), _adjacentPointsDic);
         }
+
+        #region Перетаскивание рабочего поля
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -46,11 +56,12 @@ namespace Korzunina.Visualization
         }
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_move)
-            {
-                _draw.Move(e);
-                Invalidate();
-            }
+            if (!_move)
+                return;
+
+            _draw.Move(e);
+            Invalidate();
+
         }
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
@@ -58,12 +69,21 @@ namespace Korzunina.Visualization
             this.Invalidate();
         }
 
+        #endregion
+
         private void Form1_Resize(object sender, EventArgs e)
         {
             _draw.W = ClientSize.Width;
             _draw.H = ClientSize.Height;
             _draw.SetResolution();
             this.Invalidate();
+        }
+
+        private void Form1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0) _camera.UpdateD(0.9);
+            else _camera.UpdateD(1.1);
+            Invalidate();
         }
     }
 }

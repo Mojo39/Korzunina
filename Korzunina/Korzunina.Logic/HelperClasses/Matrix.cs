@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -8,8 +9,95 @@ namespace Korzunina.Logic
     {
         private double[,] _matr;
 
+        /// <summary>
+        /// Количество строк
+        /// </summary>
         public int N { get; private set; }
+        /// <summary>
+        /// количество столбцов
+        /// </summary>
         public int M { get; private set; }
+
+        public double Det
+        {
+            get
+            {
+                if (M == 1 && N == 1)
+                {
+                    return this[0, 0];
+                }
+                else
+                {
+                    double det = 0;
+
+                    for (int i = 0; i < N; i++)
+                    {
+                        det += Math.Pow(-1, i) * this[0, i] * Cofactor(0, i);
+                    }
+
+                    return det;
+                }
+
+            }
+        }
+
+        public Matrix InverseMatrix
+        {
+            get
+            {
+                double inverseDet = 1 / Det;
+                Matrix transposeMatrix = TransposeMatrix;
+                Matrix A = new Matrix(N, M);
+
+                for (int i = 0; i < N; i++)
+                {
+                    for (int j = 0; j < M; j++)
+                    {
+                        A[i, j] = transposeMatrix.Cofactor(i, j) * Math.Pow(-1, i + j);
+                    }
+                }
+
+                return inverseDet * A;
+            }
+        }
+
+        /// <summary>
+        /// Алгебраическое дополнение
+        /// </summary>
+        private double Cofactor(int indexI, int indexJ)
+        {
+            Matrix matrix = new Matrix(N - 1, M - 1);
+
+            for (int i = 0; i < M; i++)
+            {
+                if (i != indexI)
+                    for (int j = 0; j < M; j++)
+                    {
+                        if (j != indexJ)
+                        {
+                            int indI = (i > indexI) ? i - 1 : i,
+                                indJ = (j > indexJ) ? j - 1 : j;
+                            matrix[indI, indJ] = this[i, j];
+                        }
+                    }
+            }
+
+            return matrix.Det;
+        }
+
+        public Matrix TransposeMatrix
+        {
+            get
+            {
+                Matrix transpose = new Matrix(M, N);
+
+                for (int i = 0; i < N; i++)
+                    for (int j = 0; j < M; j++)
+                        transpose[i, j] = this[j, i];
+
+                return transpose;
+            }
+        }
 
         public Matrix(int N, int M)
         {
@@ -18,45 +106,35 @@ namespace Korzunina.Logic
             _matr = new double[N, M];
             for (int i = 0; i < N; i++)
                 for (int j = 0; j < M; j++)
-                    _matr[i, j] = i != j ? 0 : 1;
+                    this[i, j] = i != j ? 0 : 1;
         }
         public Matrix(double[,] a)
+            : this(a.GetLength(0), a.GetLength(1))
         {
-            N = a.GetLength(0);
-            M = a.GetLength(1);
-            _matr = new double[N, M];
             for (int i = 0; i < N; i++)
                 for (int j = 0; j < M; j++)
-                    _matr[i, j] = a[i, j];
-        }
-        public Matrix(string namefile)
-        {
-            StreamReader fs = new StreamReader(namefile);
-            var modelInfo = fs.ReadToEnd().Split(new string[] { " ", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            N = Convert.ToInt32(modelInfo[0]);
-            M = Convert.ToInt32(modelInfo[1]);
-            _matr = new double[N, M];
-            int k = 3;
-            for (var i = 0; i < N; i++)
-            {
-                for (var j = 0; j < M; j++)
-                {
-                    _matr[i, j] = Convert.ToInt32(modelInfo[k++]);
-                }
-            }
-            modelInfo.RemoveRange(0, modelInfo.Count);
+                    this[i, j] = a[i, j];
         }
         public Matrix(double[,] a, int N, int M)
+            :this(N, M)
         {
-            _matr = new double[N, M];
-            this.N = N;
-            this.M = M;
             for (int i = 0; i < N; i++)
                 for (int j = 0; j < M; j++)
-                    _matr[i, j] = a[i, j];
+                    this[i, j] = a[i, j];
         }
 
-        public void Show()
+        public Matrix(List<Point> points)
+            :this(3, points.Count)
+        {
+            for (int i = 0; i < points.Count; i++)
+            {
+                this[0, i] = points[i].X;
+                this[1, i] = points[i].Y;
+                this[2, i] = points[i].Z;
+            }
+        }
+
+        public void ShowToConsole()
         {
             for (int i = 0; i < N; i++)
             {
@@ -66,10 +144,7 @@ namespace Korzunina.Logic
             }
         }
 
-        private static Matrix readFromFile(string namefile)
-        {
-            return new Matrix(namefile);
-        }
+        #region Перегрузки операторов
 
         public static Matrix operator *(Matrix a, Matrix b)
         {
@@ -137,7 +212,6 @@ namespace Korzunina.Logic
             }
             return c;
         }
-
         public double this[int i, int j]
         {
             get
@@ -149,5 +223,7 @@ namespace Korzunina.Logic
                 _matr[i, j] = value;
             }
         }
+
+        #endregion
     }
 }

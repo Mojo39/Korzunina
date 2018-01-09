@@ -2,7 +2,7 @@
 
 namespace Korzunina.Logic
 {
-    class CreateListOfKe
+    public class CreateListOfKe
     {
         #region переменные 
         private const double myu = 0.3;

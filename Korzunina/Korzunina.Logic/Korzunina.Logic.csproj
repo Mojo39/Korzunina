@@ -42,12 +42,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreateListOfKe.cs" />
-    <Compile Include="Matrix.cs" />
+    <Compile Include="GeneralizedMatrixAndBoundary.cs" />
+    <Compile Include="HelperClasses\Matrix.cs" />
     <Compile Include="Cholesky.cs" />
-    <Compile Include="Point.cs" />
+    <Compile Include="HelperClasses\Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sheet.cs" />
-    <Compile Include="VectorWork.cs" />
+    <Compile Include="HelperClasses\VectorWork.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

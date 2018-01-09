@@ -1,5 +1,6 @@
 ﻿using Korzunina.Logic;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -39,7 +40,11 @@ namespace Korzunina.Visualization.DrawLogic
             DY = (T - B) / H;
         }
 
-        public void drawAxis(object sender, PaintEventArgs e, Camera camera)             // Отрисовка координатных осей
+        /// <summary>
+        /// Отрисовка координатных осей
+        /// </summary>
+        /// <param name="camera"> Камера</param>
+        public void drawAxis(object sender, PaintEventArgs e, Camera camera)
         {
             Matrix z = new Matrix(new double[,] { { 0, 0 }, { 0, 0 }, { 0, 7 }, { 1, 1 } });
             z = camera.CreatProjectMatrix(z);
@@ -64,17 +69,26 @@ namespace Korzunina.Visualization.DrawLogic
             catch (Exception) { }
         }
 
-        public void drawModel(object sender, PaintEventArgs e, Matrix map, Matrix edges) //Отрисовка модели
+        /// <summary>
+        /// Отрисовка модели
+        /// </summary>
+        /// <param name="map"> Список всех точек модели</param>
+        /// <param name="adjacentPointsDic"> Словарь связанных точек</param>
+        public void drawModel(object sender, PaintEventArgs e, Matrix map, Dictionary<int, List<int>> adjacentPointsDic)
         {
             Pen pen = new Pen(Color.Black, 1);
-            for (int i = 0; i < edges.N; i++)
+            for (int i = 0; i < map.M; i++)
             {
-                int dot1 = Convert.ToInt16(edges[i, 0]);
-                int dot2 = Convert.ToInt16(edges[i, 1]);
+                if (!adjacentPointsDic.ContainsKey(i))
+                    continue;
 
-                System.Drawing.Point p1 = new System.Drawing.Point(toScreenX(map[0, dot1] / map[2, dot1]), toScreenY(map[1, dot1] / map[2, dot1]));
-                System.Drawing.Point p2 = new System.Drawing.Point(toScreenX(map[0, dot2] / map[2, dot2]), toScreenY(map[1, dot2] / map[2, dot2]));
-                e.Graphics.DrawLine(pen, p1, p2);
+                int dot1 = i;
+                foreach (int dot2 in adjacentPointsDic[i])
+                {
+                    System.Drawing.Point p1 = new System.Drawing.Point(toScreenX(map[0, dot1] / map[2, dot1]), toScreenY(map[1, dot1] / map[2, dot1]));
+                    System.Drawing.Point p2 = new System.Drawing.Point(toScreenX(map[0, dot2] / map[2, dot2]), toScreenY(map[1, dot2] / map[2, dot2]));
+                    e.Graphics.DrawLine(pen, p1, p2);
+                }
             }
         }
 
@@ -88,7 +102,10 @@ namespace Korzunina.Visualization.DrawLogic
             Y_Pos = e.Y;
         }
 
-        public void SetResolution() //изменение размеров рабочей области
+        /// <summary>
+        /// Изменение размеров рабочей области
+        /// </summary>
+        public void SetResolution() 
         {
             setPixelH();
             B = T - H * DX;

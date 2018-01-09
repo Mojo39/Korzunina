@@ -11,7 +11,7 @@ namespace Korzunina.Logic
         private int _Nx, _Ny, _Nz;
         private int _ZYPointsCount;
 
-        public int pointsCount { get; private set; }
+        public int PointsCount { get; private set; }
         public int BlocksCount { get; private set; }
 
         private List<Point> coords;
@@ -39,14 +39,14 @@ namespace Korzunina.Logic
             this._Ny = Ny;
             this._Nz = Nz;
 
-            pointsCount = (Nx + 1) * (Ny + 1) * (Nz + 1);
+            PointsCount = (Nx + 1) * (Ny + 1) * (Nz + 1);
             BlocksCount = Nx * Ny * Nz;
             _ZYPointsCount = (Ny + 1) * (Nz + 1);
             Volume = hx * hy * hz * BlocksCount;
 
             coords = new List<Point>();
             AdjacencyMatrix = new int[BlocksCount * tetrahedronCount, 4];
-            AdjacentPoints = new Dictionary<int, List<int>>(pointsCount);
+            AdjacentPoints = new Dictionary<int, List<int>>(PointsCount);
 
             CalculatePointsAndAdjacencyMatrix();
             CalculateBandWidth();
