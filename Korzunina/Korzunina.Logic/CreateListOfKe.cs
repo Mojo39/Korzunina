@@ -7,7 +7,7 @@ namespace Korzunina.Logic
         #region переменные 
         private const double myu = 0.3;
         private double v;
-        private int numbMatrK=0;
+        private int numbMatrK = 0;
         private int countBlock;
         private int[,] smezhMatrix;
         //private double[,] nodeMatrix;
@@ -66,33 +66,33 @@ namespace Korzunina.Logic
                     B[i, j] = 0;
         }
         private void quartetB(ref double[,] B, int numbQuartet)
-                {
-                    int startStolbec = 0;
-                    switch(numbQuartet)
-                    {
-                        case 0:
-                            startStolbec = 0;
-                            break;
-                        case 1:
-                            startStolbec = 3;
-                            break;
-                        case 2:
-                            startStolbec = 6;
-                            break;
-                        case 3:
-                            startStolbec = 9;
-                            break;
-                    }
-                    B[0, startStolbec] = Det(1, numbQuartet);
-                    B[1, startStolbec + 1] = Det(2, numbQuartet);
-                    B[2, startStolbec + 2] = Det(3, numbQuartet);
-                    B[3, startStolbec] = Det(2, numbQuartet);
-                    B[3, startStolbec + 1] = Det(1, numbQuartet);
-                    B[4, startStolbec + 1] = Det(3, numbQuartet);
-                    B[4, startStolbec + 2] = Det(2, numbQuartet);
-                    B[5, startStolbec] = Det(3, numbQuartet);
-                    B[5, startStolbec + 2] = Det(1, numbQuartet);
-                }
+        {
+            int startStolbec = 0;
+            switch (numbQuartet)
+            {
+                case 0:
+                    startStolbec = 0;
+                    break;
+                case 1:
+                    startStolbec = 3;
+                    break;
+                case 2:
+                    startStolbec = 6;
+                    break;
+                case 3:
+                    startStolbec = 9;
+                    break;
+            }
+            B[0, startStolbec] = Det(1, numbQuartet);
+            B[1, startStolbec + 1] = Det(2, numbQuartet);
+            B[2, startStolbec + 2] = Det(3, numbQuartet);
+            B[3, startStolbec] = Det(2, numbQuartet);
+            B[3, startStolbec + 1] = Det(1, numbQuartet);
+            B[4, startStolbec + 1] = Det(3, numbQuartet);
+            B[4, startStolbec + 2] = Det(2, numbQuartet);
+            B[5, startStolbec] = Det(3, numbQuartet);
+            B[5, startStolbec + 2] = Det(1, numbQuartet);
+        }
         private void multBOnKoef(ref double[,] B)
         {
             double koef = 1 / (6 * v);
@@ -101,34 +101,34 @@ namespace Korzunina.Logic
                     B[i, j] *= koef;
         }
         private double[,] BTransp(ref double[,] B)
+        {
+            double[,] Bt = new double[12, 6];
+            for (int i = 0; i < 6; i++)
+                for (int j = 0; j < 12; j++)
                 {
-                    double[,] Bt = new double[12, 6];
-                    for(int i=0;i<6;i++)
-                        for(int j=0;j<12; j++)
-                        {
-                            Bt[j, i] = B[i, j];
-                        }
-                    return Bt;
+                    Bt[j, i] = B[i, j];
                 }
+            return Bt;
+        }
         #endregion
         #region работа с матрицей D
         private void InitD(ref double[,] D)
+        {
+            for (int i = 0; i < 6; i++)
+                for (int j = 0; j < 6; j++)
+                    D[i, j] = 0;
+            for (int i = 0; i < 6; i++)
+                for (int j = 0; j < 6; j++)
                 {
-                    for (int i = 0; i < 6; i++)
-                        for (int j = 0; j < 6; j++)
-                            D[i, j] = 0;
-                    for (int i=0;i<6;i++)
-                        for(int j=0;j<6;j++)
-                        {
-                            if (i == j && i > 2)
-                                D[i, j] = (1 - 2 * myu) / (2 * (1 - myu));
-                            if (i <= 2 && j <= 2)
-                                if (i == j)
-                                    D[i, j] = 1;
-                                else
-                                    D[i, j] = myu / (1 - myu);
-                        }
+                    if (i == j && i > 2)
+                        D[i, j] = (1 - 2 * myu) / (2 * (1 - myu));
+                    if (i <= 2 && j <= 2)
+                        if (i == j)
+                            D[i, j] = 1;
+                        else
+                            D[i, j] = myu / (1 - myu);
                 }
+        }
         #endregion
         #region работа с определителем
         private double Det(int numbLetter, int numbKoef)
@@ -144,17 +144,20 @@ namespace Korzunina.Logic
                 case 1:
                     Letter1 = 1;
                     Letter2 = 2;
-                    KoefMult = -1;
+                    if (numbKoef == 0 || numbKoef == 2) KoefMult = -1;
+                    else KoefMult = 1;
                     break;
                 case 2:
                     Letter1 = 0;
                     Letter2 = 2;
-                    KoefMult = 1;
+                    if (numbKoef == 0 || numbKoef == 2) KoefMult = 1;
+                    else KoefMult = -1;
                     break;
                 case 3:
                     Letter1 = 0;
                     Letter2 = 1;
-                    KoefMult = -1;
+                    if (numbKoef == 0 || numbKoef == 2) KoefMult = -1;
+                    else KoefMult = 1;
                     break;
             }
             //Определяем какие столбцы нам нужны в матрице смежности
@@ -166,14 +169,14 @@ namespace Korzunina.Logic
                     KoefRight = 1;
                     break;
                 case 1:
-                    KoefLeftTop = 3;
-                    KoefLeftBottom = 0;
-                    KoefRight = 2;
+                    KoefLeftTop = 2;
+                    KoefLeftBottom = 3;
+                    KoefRight = 0;
                     break;
                 case 2:
-                    KoefLeftTop = 0;
-                    KoefLeftBottom = 1;
-                    KoefRight = 3;
+                    KoefLeftTop = 1;
+                    KoefLeftBottom = 3;
+                    KoefRight = 0;
                     break;
                 case 3:
                     KoefLeftTop = 1;
@@ -190,7 +193,7 @@ namespace Korzunina.Logic
         private double SubKoef(int LetNumb, int Node1, int Node2)
         {
             double res = 0.0;
-            switch(LetNumb)
+            switch (LetNumb)
             {
                 case 0:
                     res = listCoords[Node1].X - listCoords[Node2].X;
@@ -215,7 +218,7 @@ namespace Korzunina.Logic
             double[,] B = new double[6, 12];
             double[,] Bt = new double[12, 6];
             double[,] Ke = new double[12, 12];
-            for (int i=0;i<countBlock*6;i++)
+            for (int i = 0; i < countBlock * 6; i++)
             {
                 InitB(ref B);
                 quartetB(ref B, 0);

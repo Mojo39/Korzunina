@@ -45,7 +45,7 @@ namespace Korzunina.Visualization.DrawLogic
             transform = MatrixTransformViewToProjec() * TransformWorldToView();
         }   
 
-        private void CreatView() 
+        private void CreatView()
         {
             double[] mult = VectorWork.VectorMultiply(_T, _N);
             for (int i = 0; i < 3; i++)
