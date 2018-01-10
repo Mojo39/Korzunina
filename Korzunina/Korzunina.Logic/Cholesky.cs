@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Korzunina.Logic
 {
-    class Cholesky
+    public class Cholesky
     {
         private static int L, N;
         private static double[,] b, c;

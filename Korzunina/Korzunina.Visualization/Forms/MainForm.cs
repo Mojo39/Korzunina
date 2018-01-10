@@ -10,6 +10,9 @@ namespace Korzunina.Visualization
 {
     public partial class Form1 : Form
     {
+        private const double _hx = 1, _hy = 1, _hz = 1;
+        private const int _Nx = 1, _Ny = 1, _Nz = 1;
+
         private Draw _draw = new Draw();
         private Camera _camera = new Camera();
 
@@ -18,8 +21,11 @@ namespace Korzunina.Visualization
         private Dictionary<int, List<int>> _adjacentPointsDic = TestData.AdjacentPointsDic;
 
         private Dictionary<int, double[]> _deformationPoints = new Dictionary<int, double[]>();
+        private Sheet _sheet = new Sheet(_hx, _hy, _hz, _Nx, _Ny, _Nz);
 
         private bool _move = false;
+
+        
 
         public Form1()
         {
@@ -45,8 +51,19 @@ namespace Korzunina.Visualization
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             InitializeDrawParameters();
-            _draw.drawAxis(sender, e, _camera);
-            _draw.drawModel(sender, e, _camera.CreatProjectMatrix(_A * _map), _adjacentPointsDic);
+            _draw.DrawAxis(sender, e, _camera);
+            _draw.DrawModel(sender, e, _camera.CreatProjectMatrix(_A * _map), _sheet.AdjacentPoints);
+
+            foreach (int index in _deformationPoints.Keys)
+            {
+                double[] point = new double[_map.N];
+                for (int i = 0; i < _map.N; i++)
+                {
+                    point[i] = _map[i, index];
+                }
+
+                //_draw.DrawPoint(sender, e, point);
+            }
         }
 
         #region Перетаскивание рабочего поля
@@ -112,9 +129,12 @@ namespace Korzunina.Visualization
         private void btnReset_Click(object sender, EventArgs e)
         {
             _A = new Matrix(4, 4);
-            this.Invalidate();
-
+            
+            _deformationPoints.Clear();
             lbPoints.Items.Clear();
+
+            InitilizeObject();
+            this.Invalidate();
         }
 
         private void btnAddPoint_Click(object sender, EventArgs e)
@@ -140,6 +160,8 @@ namespace Korzunina.Visualization
             lbPoints.DataSource = _deformationPoints.Values
                 .Select(t => string.Format("{0}: ({1}, {2}, {3})", t[0], t[1], t[2], t[3]))
                 .ToList();
+
+            this.Invalidate();
         }
 
         private void btnDelPoint_Click(object sender, EventArgs e)
@@ -154,11 +176,33 @@ namespace Korzunina.Visualization
             lbPoints.DataSource = _deformationPoints.Values
                 .Select(t => string.Format("{0}: ({1},{2},{3})", t[0], t[1], t[2], t[3]))
                 .ToList();
+
+            this.Invalidate();
         }
 
         private void btnTransformation_Click(object sender, EventArgs e)
         {
-            // Код, отвечаюзий за изменение листа
+            CreateListOfKe cloke = new CreateListOfKe(_sheet);
+
+            List<double[,]> KeList = cloke.ListOfMatrixKe;
+
+            List<double[]> boundCond = new List<double[]>();
+            boundCond.Add(new double[] { 1, 1, 1, 1 });
+            //boundCond.Add(new double[] { 1, 0, 0, -1 });
+            //boundCond.Add(new double[] { 2, 0, 0, 0 });
+            //boundCond.Add(new double[] { 3, 0, 0, 0 });
+
+            GeneralizedMatrixAndBoundary gmab = new GeneralizedMatrixAndBoundary(_sheet, cloke, boundCond);
+
+            int rowLength = gmab.GeneralMatrix.GetLength(0);
+            int colLength = gmab.GeneralMatrix.GetLength(1);
+            double[] solution = Cholesky.Solve(gmab.BandMatrix, gmab.RightPart);
+
+            List<Point> Points = Point.ParseArray(solution);
+
+            _map = new Matrix(Points);
+
+            this.Invalidate();
         }
         
         #endregion
@@ -167,7 +211,7 @@ namespace Korzunina.Visualization
         {
             _draw.W = ClientSize.Width;
             _draw.H = ClientSize.Height;
-            _draw.setPixelH();
+            _draw.SetPixelH();
         }
 
         private DialogResult ShowMessage(string text, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.Information)
@@ -177,9 +221,7 @@ namespace Korzunina.Visualization
 
         private void InitilizeObject()
         {
-            Sheet sheet = new Sheet(1, 1, 1, 5, 5, 5);
-            _adjacentPointsDic = sheet.AdjacentPoints;
-            _map = new Matrix(sheet.Coordinates);
+            _map = new Matrix(_sheet.Coordinates);
         }
     }
 }

@@ -13,28 +13,40 @@ namespace Korzunina.Visualization.DrawLogic
         public double DX, DY;                                       // Ширина и высота одного пикселя
         public double X_Pos, Y_Pos;                                 // Позиция графического курсора в мировых координатах
 
-        public int toScreenX(double X)                              // Переход от мировых координат к экранным (для абсциссы)
+        /// <summary>
+        /// Переход от мировых координат к экранным (для абсциссы)
+        /// </summary>
+        private int ToScreenX(double X)
         {
             int newX = (int)((X - L) / (R - L) * W);
             return newX;
         }
-        public int toScreenY(double Y)                              // Переход от мировых координат к экранным (для ординаты)
+        /// <summary>
+        /// Переход от мировых координат к экранным (для ординаты)
+        /// </summary>
+        private int ToScreenY(double Y)
         {
             int newY = (int)((T - Y) / (T - B) * H);
             return newY;
         }
-        public double toWorldX(int X)                               // Переход от экранных координат к мировым (для абсциссы)
+        /// <summary>
+        /// Переход от экранных координат к мировым (для абсциссы)
+        /// </summary>
+        public double toWorldX(int X) 
         {
             double newX = L + (R - L) * (X + 0.5) / (double)(W);
             return newX;
         }
-        public double toWorldY(int Y)                               // Переход от экранных координат к мировым (для ординаты)
+        /// <summary>
+        /// Переход от экранных координат к мировым (для ординаты)
+        /// </summary>
+        public double toWorldY(int Y)
         {
             double newY = T - (T - B) * (Y + 0.5) / (double)(H);
             return newY;
         }
 
-        public void setPixelH()
+        public void SetPixelH()
         {
             DX = (R - L) / W;
             DY = (T - B) / H;
@@ -44,27 +56,27 @@ namespace Korzunina.Visualization.DrawLogic
         /// Отрисовка координатных осей
         /// </summary>
         /// <param name="camera"> Камера</param>
-        public void drawAxis(object sender, PaintEventArgs e, Camera camera)
+        public void DrawAxis(object sender, PaintEventArgs e, Camera camera)
         {
             Matrix z = new Matrix(new double[,] { { 0, 0 }, { 0, 0 }, { 0, 7 }, { 1, 1 } });
             z = camera.CreatProjectMatrix(z);
             try
             {
-                e.Graphics.DrawLine(new Pen(Brushes.Green), toScreenX(z[0, 0] / z[2, 0]), toScreenY(z[1, 0] / z[2,0]), toScreenX(z[0, 1] / z[2, 1]), toScreenY(z[1, 1] / z[2, 1]));
+                e.Graphics.DrawLine(new Pen(Brushes.Green), ToScreenX(z[0, 0] / z[2, 0]), ToScreenY(z[1, 0] / z[2,0]), ToScreenX(z[0, 1] / z[2, 1]), ToScreenY(z[1, 1] / z[2, 1]));
             }
             catch (Exception) { }
             Matrix x = new Matrix(new double[,] { { 0, 7 }, { 0, 0 }, { 0, 0 }, { 1, 1 } });
             x = camera.CreatProjectMatrix(x);
             try
             {
-                e.Graphics.DrawLine(new Pen(Brushes.Red), toScreenX(x[0, 0] / x[2, 0]), toScreenY(x[1, 0] / x[2, 0]), toScreenX(x[0, 1] / x[2, 1]), toScreenY(x[1, 1] / x[2, 1]));
+                e.Graphics.DrawLine(new Pen(Brushes.Red), ToScreenX(x[0, 0] / x[2, 0]), ToScreenY(x[1, 0] / x[2, 0]), ToScreenX(x[0, 1] / x[2, 1]), ToScreenY(x[1, 1] / x[2, 1]));
             }
             catch (Exception) { }
             Matrix y = new Matrix(new double[,] { { 0, 0 }, { 0, 7 }, { 0, 0 }, { 1, 1 } });
             y = camera.CreatProjectMatrix(y);
             try
             {
-                e.Graphics.DrawLine(new Pen(Brushes.Purple), toScreenX(y[0, 0] / y[2, 0]), toScreenY(y[1, 0] / y[2, 0]), toScreenX(y[0, 1] / y[2, 1]), toScreenY(y[1, 1] / y[2, 1]));
+                e.Graphics.DrawLine(new Pen(Brushes.Purple), ToScreenX(y[0, 0] / y[2, 0]), ToScreenY(y[1, 0] / y[2, 0]), ToScreenX(y[0, 1] / y[2, 1]), ToScreenY(y[1, 1] / y[2, 1]));
             }
             catch (Exception) { }
         }
@@ -74,7 +86,7 @@ namespace Korzunina.Visualization.DrawLogic
         /// </summary>
         /// <param name="map"> Список всех точек модели</param>
         /// <param name="adjacentPointsDic"> Словарь связанных точек</param>
-        public void drawModel(object sender, PaintEventArgs e, Matrix map, Dictionary<int, List<int>> adjacentPointsDic)
+        public void DrawModel(object sender, PaintEventArgs e, Matrix map, Dictionary<int, List<int>> adjacentPointsDic)
         {
             Pen pen = new Pen(Color.Black, 1);
             for (int i = 0; i < map.M; i++)
@@ -85,11 +97,17 @@ namespace Korzunina.Visualization.DrawLogic
                 int dot1 = i;
                 foreach (int dot2 in adjacentPointsDic[i])
                 {
-                    System.Drawing.Point p1 = new System.Drawing.Point(toScreenX(map[0, dot1] / map[2, dot1]), toScreenY(map[1, dot1] / map[2, dot1]));
-                    System.Drawing.Point p2 = new System.Drawing.Point(toScreenX(map[0, dot2] / map[2, dot2]), toScreenY(map[1, dot2] / map[2, dot2]));
+                    System.Drawing.Point p1 = new System.Drawing.Point(ToScreenX(map[0, dot1] / map[2, dot1]), ToScreenY(map[1, dot1] / map[2, dot1]));
+                    System.Drawing.Point p2 = new System.Drawing.Point(ToScreenX(map[0, dot2] / map[2, dot2]), ToScreenY(map[1, dot2] / map[2, dot2]));
                     e.Graphics.DrawLine(pen, p1, p2);
                 }
             }
+        }
+
+        public void DrawPoint(object sender, PaintEventArgs e, double[] point)
+        {
+            Pen pen = new Pen(Color.Red, 3);
+            e.Graphics.DrawEllipse(pen, ToScreenX(point[0] / point[2]), ToScreenY(point[1] / point[2]), 2, 2);
         }
 
         public void Move(MouseEventArgs e)
@@ -107,7 +125,7 @@ namespace Korzunina.Visualization.DrawLogic
         /// </summary>
         public void SetResolution() 
         {
-            setPixelH();
+            SetPixelH();
             B = T - H * DX;
             /*
             T = H * DX / 2;

@@ -14,26 +14,31 @@ namespace Korzunina.Logic
         private int L; //ширина ленты 
         private int[,] adj; //матрица смежности 
         private List<double[,]> Ke; //список матриц для каждого тетраэдра
-
+        private double[,] gen; //обобщенная матрица
 
         private double[,] band; //матрица для хранения ленты
 
         private double[] rightPart; //вектор правой части
 
-        public double[,] BandMatrix 
+        public double[,] BandMatrix
         {
             get { return band; }
         }
 
-        public double[] RightPart 
+        public double[] RightPart
         {
             get { return rightPart; }
+        }
+
+        public double[,] GeneralMatrix
+        {
+            get { return gen; }
         }
 
         public GeneralizedMatrixAndBoundary(Sheet sheet, CreateListOfKe listofKe, List<double[]> boundCond)
         {
             N = sheet.PointsCount; //получаем кол-во узлов
-            L = sheet.BandWidth; //получаем ширину ленты
+            L = (sheet.BandWidth + 1) * 3; //получаем ширину ленты
             adj = sheet.AdjacencyMatrix; //получаем матрицу смежности
             Ke = listofKe.ListOfMatrixKe; //получаем список матриц K^e для каждого тетраэдра
 
@@ -56,6 +61,16 @@ namespace Korzunina.Logic
                 }
             }
 
+            //обощенная матрица
+            gen = new double[3 * N, 3 * N];
+            for (int i = 0; i < 3 * N; i++)
+            {
+                for (int j = 0; j < 3 * N; j++)
+                {
+                    gen[i, j] = 0;
+                }
+            }
+
             //считываем матрицу K^e для каждого тетраэдра
             int count = 0;
             foreach (var n in Ke)
@@ -73,9 +88,10 @@ namespace Korzunina.Logic
                             for (int col_k = 0; col_k <= 2; col_k++)
                             {
                                 int col = 3 * col_n + col_k; //номер столбца в матрице K^e для тетраэдра 
-                                int colNew = 3 * adj[count, col_n] + col_k - rowNew + L-1; //номер столбца в матрице-ленте
+                                int colNew = 3 * adj[count, col_n] + col_k - rowNew + L - 1; //номер столбца в матрице-ленте
                                 //записываем соответствующий элемент в матрицу-ленту
                                 band[rowNew, colNew] += n[row, col];
+                                gen[rowNew, 3 * adj[count, col_n] + col_k] += n[row, col];
                             }
                         }
                     }
@@ -92,6 +108,8 @@ namespace Korzunina.Logic
                 rightPart[i] = 0;
             }
 
+
+
             //считываем по порядку граничные условия из списка
             foreach (var n in boundCond)
             {
@@ -100,43 +118,56 @@ namespace Korzunina.Logic
                 //учитываем граничное условие по каждой координате x,y,z
                 for (int count = 0; count <= 2; count++)
                 {
-                    int colNew = 3 * note + count; //номер столбца в обобщенной матрице
-
-                    //вносим изменения в правую часть (кроме элемента с номером colNew)
-                    for (int i = 0; i < 3 * N; i++)
+                    //проверяем, чтобы не было нулевого условия (иначе не применяем)
+                    if (n[count + 1] != 0)
                     {
-                        if (i != colNew)
+                        int colNew = 3 * note + count; //номер столбца в обобщенной матрице
+
+                        //вносим изменения в правую часть (кроме элемента с номером colNew)
+                        for (int i = 0; i < 3 * N; i++)
+                        {
+                            if (i != colNew)
+                            {
+                                bool flag = true;
+                                //проверяем, чтобы не попало в область i>=L && j<3N-L || i<3N-L && j>=L (в обобщенной матрице)
+                                if ((i >= L && colNew < 3 * N - L) || (i < 3 * N - L && colNew >= L))
+                                {
+                                    flag = false;
+                                }
+                                if (flag)
+                                {
+                                    rightPart[i] -= band[i, colNew - i + L - 1] * (n[count + 1] + band[colNew, L - 1]);
+                                }
+                            }
+                        }
+
+                        double q = band[colNew, L - 1];
+
+                        //обнуляем столбец
+                        for (int i = 0; i < 3 * N; i++)
                         {
                             bool flag = true;
-                            //проверяем, чтобы не попало в область i>=L && j<3N-L || i<3N-L && j>=L (в обобщенной матрице)
-                            if ((i >= L && colNew < 3*N-L) || (i < 3*N-L && colNew >= L))
+                            //проверяем, чтобы не попало в область i>=L && j<3N-L || i<3N-L && j>=L (в обощенной матрице)
+                            if ((i >= L && colNew < 3 * N - L) || (i < 3 * N - L && colNew >= L))
                             {
                                 flag = false;
                             }
                             if (flag)
                             {
-                                rightPart[i] -= band[i, colNew - i + L - 1] * n[count + 1];
-                            }                        
+                                band[i, colNew - i + L - 1] = 0;
+                            }
                         }
-                    }
 
-                    //обнуляем столбец
-                    for (int i = 0; i < 3 * N; i++)
-                    {
-                        bool flag = true;
-                        //проверяем, чтобы не попало в область i>=L && j<3N-L || i<3N-L && j>=L (в обощенной матрице)
-                        if ((i >= L && colNew < 3 * N - L) || (i < 3 * N - L && colNew >= L))
+                        //заполняем значение из вектора перемещений
+                        band[colNew, L - 1] = n[count + 1] + q;
+
+                        //для обобщенной
+                        for (int i = 0; i < 3 * N; i++)
                         {
-                            flag = false;
+                            gen[i, colNew] = 0;
                         }
-                        if (flag)
-                        {
-                            band[i, colNew - i + L - 1] = 0;
-                        }                     
+                        gen[colNew, colNew] = n[count + 1] + q;
                     }
-
-                    //заполняем значение из вектора перемещений
-                    band[colNew, L-1] = n[count + 1]; 
                 }
             }
         }
