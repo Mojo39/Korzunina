@@ -122,15 +122,15 @@ namespace Korzunina.Logic
                 for (int j = 0; j < M; j++)
                     this[i, j] = a[i, j];
         }
-
         public Matrix(List<Point> points)
-            :this(3, points.Count)
+            :this(4, points.Count)
         {
             for (int i = 0; i < points.Count; i++)
             {
                 this[0, i] = points[i].X;
                 this[1, i] = points[i].Y;
                 this[2, i] = points[i].Z;
+                this[3, i] = 1;
             }
         }
 
