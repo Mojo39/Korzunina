@@ -105,7 +105,7 @@ namespace Korzunina.Logic
             ConnectPoints(s, new int[] { l, r });
             ConnectPoints(r, new int[] { q, k });
             ConnectPoints(l, new int[] { k });
-            ConnectPoints(j, new int[] { k });
+            ConnectPoints(j, new int[] { k, q });
         }
 
         private void ConnectPoints(int point, int[] adjecentPoints)
