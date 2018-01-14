@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+﻿using System.Collections.Generic;
 
 namespace Korzunina.Logic
 {
@@ -15,6 +10,7 @@ namespace Korzunina.Logic
         private int[,] adj; //матрица смежности 
         private List<double[,]> Ke; //список матриц для каждого тетраэдра
         private double[,] gen; //обобщенная матрица
+
 
         private double[,] band; //матрица для хранения ленты
 
@@ -108,8 +104,6 @@ namespace Korzunina.Logic
                 rightPart[i] = 0;
             }
 
-
-
             //считываем по порядку граничные условия из списка
             foreach (var n in boundCond)
             {
@@ -118,56 +112,73 @@ namespace Korzunina.Logic
                 //учитываем граничное условие по каждой координате x,y,z
                 for (int count = 0; count <= 2; count++)
                 {
-                    //проверяем, чтобы не было нулевого условия (иначе не применяем)
-                    if (n[count + 1] != 0)
+
+                    int colNew = 3 * note + count; //номер столбца в обобщенной матрице
+
+                    //вносим изменения в правую часть (кроме элемента с номером colNew)
+                    for (int i = 0; i < 3 * N; i++)
                     {
-                        int colNew = 3 * note + count; //номер столбца в обобщенной матрице
-
-                        //вносим изменения в правую часть (кроме элемента с номером colNew)
-                        for (int i = 0; i < 3 * N; i++)
-                        {
-                            if (i != colNew)
-                            {
-                                bool flag = true;
-                                //проверяем, чтобы не попало в область i>=L && j<3N-L || i<3N-L && j>=L (в обобщенной матрице)
-                                if ((i >= L && colNew < 3 * N - L) || (i < 3 * N - L && colNew >= L))
-                                {
-                                    flag = false;
-                                }
-                                if (flag)
-                                {
-                                    rightPart[i] -= band[i, colNew - i + L - 1] * (n[count + 1] + band[colNew, L - 1]);
-                                }
-                            }
-                        }
-
-                        double q = band[colNew, L - 1];
-
-                        //обнуляем столбец
-                        for (int i = 0; i < 3 * N; i++)
+                        if (i != colNew)
                         {
                             bool flag = true;
-                            //проверяем, чтобы не попало в область i>=L && j<3N-L || i<3N-L && j>=L (в обощенной матрице)
-                            if ((i >= L && colNew < 3 * N - L) || (i < 3 * N - L && colNew >= L))
+                            //проверяем, чтобы не попало в область с отрицательными индексами
+                            if ((i >= L && (colNew >= 0 && colNew < i - (L - 1))) || (colNew >= L && (i >= 0 && i < colNew - (L - 1))))
                             {
                                 flag = false;
                             }
                             if (flag)
                             {
-                                band[i, colNew - i + L - 1] = 0;
+                                rightPart[i] -= band[i, colNew - i + L - 1] * n[count + 1];
                             }
                         }
-
-                        //заполняем значение из вектора перемещений
-                        band[colNew, L - 1] = n[count + 1] + q;
-
-                        //для обобщенной
-                        for (int i = 0; i < 3 * N; i++)
-                        {
-                            gen[i, colNew] = 0;
-                        }
-                        gen[colNew, colNew] = n[count + 1] + q;
                     }
+
+                    rightPart[colNew] = band[colNew, L - 1] * n[count + 1];
+
+                    double q = band[colNew, L - 1];
+
+                    //обнуляем столбец
+                    for (int i = 0; i < 3 * N; i++)
+                    {
+                        bool flag = true;
+                        //проверяем, чтобы не попало в область с отрицательными индексами
+                        if ((i >= L && (colNew >= 0 && colNew < i - (L - 1))) || (colNew >= L && (i >= 0 && i < colNew - (L - 1))))
+                        {
+                            flag = false;
+                        }
+                        if (flag)
+                        {
+                            band[i, colNew - i + L - 1] = 0;
+                        }
+                    }
+
+                    //обнуляем строку
+                    for (int j = 0; j < 3 * N; j++)
+                    {
+                        bool flag = true;
+                        //проверяем, чтобы не попало в область с отрицательными индексами
+                        if ((colNew >= L && (j >= 0 && j < colNew - (L - 1))) || (j >= L && (colNew >= 0 && colNew < j - (L - 1))))
+                        {
+                            flag = false;
+                        }
+                        if (flag)
+                        {
+                            band[colNew, j - colNew + L - 1] = 0;
+                        }
+                    }
+
+                    //не изменяем диагональный элемент
+                    band[colNew, L - 1] = q;
+
+                    //для обобщенной
+                    for (int i = 0; i < 3 * N; i++)
+                    {
+                        gen[i, colNew] = 0;
+                        gen[colNew, i] = 0;
+                    }
+
+                    gen[colNew, colNew] = q;
+
                 }
             }
         }

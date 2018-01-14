@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lblMaxMinValueNud = new System.Windows.Forms.Label();
             this.lbPoints = new System.Windows.Forms.ListBox();
             this.btnDelPoint = new System.Windows.Forms.Button();
             this.btnAddPoint = new System.Windows.Forms.Button();
@@ -47,7 +48,6 @@
             this.tbR = new System.Windows.Forms.TextBox();
             this.btnR = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.lblMaxMinValueNud = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPoint)).BeginInit();
             this.SuspendLayout();
@@ -80,6 +80,15 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Действия";
+            // 
+            // lblMaxMinValueNud
+            // 
+            this.lblMaxMinValueNud.AutoSize = true;
+            this.lblMaxMinValueNud.Location = new System.Drawing.Point(34, 169);
+            this.lblMaxMinValueNud.Name = "lblMaxMinValueNud";
+            this.lblMaxMinValueNud.Size = new System.Drawing.Size(35, 13);
+            this.lblMaxMinValueNud.TabIndex = 51;
+            this.lblMaxMinValueNud.Text = "label3";
             // 
             // lbPoints
             // 
@@ -241,15 +250,6 @@
             this.label1.TabIndex = 33;
             this.label1.Text = "Поворот вокруг:";
             // 
-            // lblMaxMinValueNud
-            // 
-            this.lblMaxMinValueNud.AutoSize = true;
-            this.lblMaxMinValueNud.Location = new System.Drawing.Point(34, 169);
-            this.lblMaxMinValueNud.Name = "lblMaxMinValueNud";
-            this.lblMaxMinValueNud.Size = new System.Drawing.Size(35, 13);
-            this.lblMaxMinValueNud.TabIndex = 51;
-            this.lblMaxMinValueNud.Text = "label3";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -257,7 +257,7 @@
             this.ClientSize = new System.Drawing.Size(956, 499);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Деформирование упругого прямоугольного листа";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseMove);

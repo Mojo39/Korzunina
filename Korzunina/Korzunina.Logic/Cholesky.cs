@@ -100,6 +100,5 @@ namespace Korzunina.Logic
         {
             matrix[i, j - i] = val;
         }
-
     }
 }

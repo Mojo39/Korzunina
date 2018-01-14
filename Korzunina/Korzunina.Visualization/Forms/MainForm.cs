@@ -10,8 +10,8 @@ namespace Korzunina.Visualization
 {
     public partial class Form1 : Form
     {
-        private const double _hx = 1, _hy = 1, _hz = 1;
-        private const int _Nx = 1, _Ny = 1, _Nz = 1;
+        private double _hx = 0.2, _hy = 0.2, _hz = 0.2;
+        private int _Nx = 20, _Ny = 20, _Nz = 1;
 
         private Draw _draw = new Draw();
         private Camera _camera = new Camera();
@@ -20,8 +20,8 @@ namespace Korzunina.Visualization
         private Matrix _map = TestData.MapDots;
         private Dictionary<int, List<int>> _adjacentPointsDic = TestData.AdjacentPointsDic;
 
-        private Dictionary<int, double[]> _deformationPoints = new Dictionary<int, double[]>();
-        private Sheet _sheet = new Sheet(_hx, _hy, _hz, _Nx, _Ny, _Nz);
+        private Dictionary<int, double[]> _boundCond = new Dictionary<int, double[]>();
+        private Sheet _sheet;
 
         private bool _move = false;
 
@@ -29,6 +29,8 @@ namespace Korzunina.Visualization
 
         public Form1()
         {
+            _sheet = new Sheet(_hx, _hy, _hz, _Nx, _Ny, _Nz);
+            
             InitializeComponent();
             Buf();
             InitializeDrawParameters();
@@ -54,7 +56,7 @@ namespace Korzunina.Visualization
             _draw.DrawAxis(sender, e, _camera);
             _draw.DrawModel(sender, e, _camera.CreatProjectMatrix(_A * _map), _sheet.AdjacentPoints);
 
-            foreach (int index in _deformationPoints.Keys)
+            foreach (int index in _boundCond.Keys)
             {
                 double[] point = new double[_map.N];
                 for (int i = 0; i < _map.N; i++)
@@ -130,7 +132,7 @@ namespace Korzunina.Visualization
         {
             _A = new Matrix(4, 4);
             
-            _deformationPoints.Clear();
+            _boundCond.Clear();
             lbPoints.Items.Clear();
 
             InitilizeObject();
@@ -152,12 +154,12 @@ namespace Korzunina.Visualization
 
             List<double[]> a = new List<double[]>();
 
-            if (_deformationPoints.ContainsKey(numberPoint))
-                _deformationPoints[numberPoint] = vector;
+            if (_boundCond.ContainsKey(numberPoint))
+                _boundCond[numberPoint] = vector;
             else
-                _deformationPoints.Add(numberPoint, vector);
+                _boundCond.Add(numberPoint, vector);
 
-            lbPoints.DataSource = _deformationPoints.Values
+            lbPoints.DataSource = _boundCond.Values
                 .Select(t => string.Format("{0}: ({1}, {2}, {3})", t[0], t[1], t[2], t[3]))
                 .ToList();
 
@@ -171,9 +173,9 @@ namespace Korzunina.Visualization
 
             string vectorStr = (string)lbPoints.SelectedValue;
             int numberPoint = int.Parse(vectorStr.Trim().Split(':')[0]);
-            _deformationPoints.Remove(numberPoint);
+            _boundCond.Remove(numberPoint);
 
-            lbPoints.DataSource = _deformationPoints.Values
+            lbPoints.DataSource = _boundCond.Values
                 .Select(t => string.Format("{0}: ({1},{2},{3})", t[0], t[1], t[2], t[3]))
                 .ToList();
 
@@ -186,13 +188,18 @@ namespace Korzunina.Visualization
 
             List<double[,]> KeList = cloke.ListOfMatrixKe;
 
-            List<double[]> boundCond = new List<double[]>();
-            boundCond.Add(new double[] { 1, 1, 1, 1 });
+            //List<double[]> boundCond = new List<double[]>();
+            _boundCond.Add(1, new double[] { 1, 0, 0, 0 });
+            //boundCond.Add(new double[] { 41, 0, 0, 0 });
+            _boundCond.Add(841, new double[] { 841, -0.7, 0, 0 });
+            //boundCond.Add(new double[] { 881, 0, 0, 0 });
+            _boundCond.Add(300, new double[] { 300, 0, 2, -0.5 });
+            _boundCond.Add(500, new double[] { 500, 0, 0, 0.5 });
             //boundCond.Add(new double[] { 1, 0, 0, -1 });
             //boundCond.Add(new double[] { 2, 0, 0, 0 });
             //boundCond.Add(new double[] { 3, 0, 0, 0 });
 
-            GeneralizedMatrixAndBoundary gmab = new GeneralizedMatrixAndBoundary(_sheet, cloke, boundCond);
+            GeneralizedMatrixAndBoundary gmab = new GeneralizedMatrixAndBoundary(_sheet, cloke, _boundCond.Values.ToList());
 
             int rowLength = gmab.GeneralMatrix.GetLength(0);
             int colLength = gmab.GeneralMatrix.GetLength(1);
