@@ -61,30 +61,6 @@ namespace Korzunina.Logic
             }
         }
 
-        /// <summary>
-        /// Алгебраическое дополнение
-        /// </summary>
-        private double Cofactor(int indexI, int indexJ)
-        {
-            Matrix matrix = new Matrix(N - 1, M - 1);
-
-            for (int i = 0; i < M; i++)
-            {
-                if (i != indexI)
-                    for (int j = 0; j < M; j++)
-                    {
-                        if (j != indexJ)
-                        {
-                            int indI = (i > indexI) ? i - 1 : i,
-                                indJ = (j > indexJ) ? j - 1 : j;
-                            matrix[indI, indJ] = this[i, j];
-                        }
-                    }
-            }
-
-            return matrix.Det;
-        }
-
         public Matrix TransposeMatrix
         {
             get
@@ -134,6 +110,29 @@ namespace Korzunina.Logic
             }
         }
 
+        /// <summary>
+        /// Алгебраическое дополнение
+        /// </summary>
+        private double Cofactor(int indexI, int indexJ)
+        {
+            Matrix matrix = new Matrix(N - 1, M - 1);
+
+            for (int i = 0; i < M; i++)
+            {
+                if (i != indexI)
+                    for (int j = 0; j < M; j++)
+                    {
+                        if (j != indexJ)
+                        {
+                            int indI = (i > indexI) ? i - 1 : i,
+                                indJ = (j > indexJ) ? j - 1 : j;
+                            matrix[indI, indJ] = this[i, j];
+                        }
+                    }
+            }
+
+            return matrix.Det;
+        }
         public void ShowToConsole()
         {
             for (int i = 0; i < N; i++)
@@ -142,6 +141,18 @@ namespace Korzunina.Logic
                     Console.Write(_matr[i, j] + " ");
                 Console.WriteLine();
             }
+        }
+
+        public double[] GetVector(int index)
+        {
+            double[] vector = new double[N];
+
+            for (int i = 0; i < N; i++)
+            {
+                vector[i] = this[i, index];
+            }
+
+            return vector;
         }
 
         #region Перегрузки операторов

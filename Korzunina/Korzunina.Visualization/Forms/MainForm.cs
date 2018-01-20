@@ -17,15 +17,15 @@ namespace Korzunina.Visualization
         private Camera _camera = new Camera();
 
         private Matrix _A = new Matrix(4, 4);
-        private Matrix _map = TestData.MapDots;
+        private Matrix _map;
         private Dictionary<int, List<int>> _adjacentPointsDic = TestData.AdjacentPointsDic;
 
         private Dictionary<int, double[]> _boundCond = new Dictionary<int, double[]>();
         private Sheet _sheet;
 
-        private bool _move = false;
+        private double[] _point;
 
-        
+        private bool _move = false;
 
         public Form1()
         {
@@ -56,16 +56,8 @@ namespace Korzunina.Visualization
             _draw.DrawAxis(sender, e, _camera);
             _draw.DrawModel(sender, e, _camera.CreatProjectMatrix(_A * _map), _sheet.AdjacentPoints);
 
-            foreach (int index in _boundCond.Keys)
-            {
-                double[] point = new double[_map.N];
-                for (int i = 0; i < _map.N; i++)
-                {
-                    point[i] = _map[i, index];
-                }
-
-                //_draw.DrawPoint(sender, e, point);
-            }
+            if (_point != null)
+                _draw.DrawPoint(sender, e, _point);
         }
 
         #region Перетаскивание рабочего поля
@@ -182,22 +174,39 @@ namespace Korzunina.Visualization
             this.Invalidate();
         }
 
+        private void nudPoint_ValueChanged(object sender, EventArgs e)
+        {
+            int pointIndex = (int)nudPoint.Value;
+
+            _point = _camera.CreatProjectMatrix(_A * _map).GetVector(pointIndex);
+
+            this.Invalidate();
+        }
+
+        private void lbPoints_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string vectorStr = (string)lbPoints.SelectedValue;
+            int numberPoint = int.Parse(vectorStr.Trim().Split(':')[0]);
+
+            if (_boundCond.ContainsKey(numberPoint))
+            {
+                _point = _camera.CreatProjectMatrix(_A * _map).GetVector(numberPoint);
+
+                this.Invalidate();
+            }
+        }
+
         private void btnTransformation_Click(object sender, EventArgs e)
         {
             CreateListOfKe cloke = new CreateListOfKe(_sheet);
 
             List<double[,]> KeList = cloke.ListOfMatrixKe;
 
-            //List<double[]> boundCond = new List<double[]>();
             _boundCond.Add(1, new double[] { 1, 0, 0, 0 });
-            //boundCond.Add(new double[] { 41, 0, 0, 0 });
             _boundCond.Add(841, new double[] { 841, -0.7, 0, 0 });
-            //boundCond.Add(new double[] { 881, 0, 0, 0 });
             _boundCond.Add(300, new double[] { 300, 0, 2, -0.5 });
             _boundCond.Add(500, new double[] { 500, 0, 0, 0.5 });
-            //boundCond.Add(new double[] { 1, 0, 0, -1 });
-            //boundCond.Add(new double[] { 2, 0, 0, 0 });
-            //boundCond.Add(new double[] { 3, 0, 0, 0 });
+
 
             GeneralizedMatrixAndBoundary gmab = new GeneralizedMatrixAndBoundary(_sheet, cloke, _boundCond.Values.ToList());
 

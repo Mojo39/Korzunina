@@ -95,9 +95,10 @@ namespace Korzunina.Visualization.DrawLogic
                     continue;
 
                 int dot1 = i;
+                System.Drawing.Point p1 = new System.Drawing.Point(ToScreenX(map[0, dot1] / map[2, dot1]), ToScreenY(map[1, dot1] / map[2, dot1]));
+
                 foreach (int dot2 in adjacentPointsDic[i])
                 {
-                    System.Drawing.Point p1 = new System.Drawing.Point(ToScreenX(map[0, dot1] / map[2, dot1]), ToScreenY(map[1, dot1] / map[2, dot1]));
                     System.Drawing.Point p2 = new System.Drawing.Point(ToScreenX(map[0, dot2] / map[2, dot2]), ToScreenY(map[1, dot2] / map[2, dot2]));
                     e.Graphics.DrawLine(pen, p1, p2);
                 }
@@ -106,8 +107,8 @@ namespace Korzunina.Visualization.DrawLogic
 
         public void DrawPoint(object sender, PaintEventArgs e, double[] point)
         {
-            Pen pen = new Pen(Color.Red, 3);
-            e.Graphics.DrawEllipse(pen, ToScreenX(point[0] / point[2]), ToScreenY(point[1] / point[2]), 2, 2);
+            SolidBrush brush = new SolidBrush(Color.Red);
+            e.Graphics.FillEllipse(brush, ToScreenX(point[0] / point[2]), ToScreenY(point[1] / point[2]), 5, 5);
         }
 
         public void Move(MouseEventArgs e)

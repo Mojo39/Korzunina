@@ -97,6 +97,7 @@
             this.lbPoints.Name = "lbPoints";
             this.lbPoints.Size = new System.Drawing.Size(110, 173);
             this.lbPoints.TabIndex = 50;
+            this.lbPoints.SelectedIndexChanged += new System.EventHandler(this.lbPoints_SelectedIndexChanged);
             // 
             // btnDelPoint
             // 
@@ -133,6 +134,7 @@
             this.nudPoint.Name = "nudPoint";
             this.nudPoint.Size = new System.Drawing.Size(72, 20);
             this.nudPoint.TabIndex = 46;
+            this.nudPoint.ValueChanged += new System.EventHandler(this.nudPoint_ValueChanged);
             // 
             // tbZ
             // 
