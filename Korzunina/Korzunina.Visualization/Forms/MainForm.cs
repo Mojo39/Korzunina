@@ -23,7 +23,7 @@ namespace Korzunina.Visualization
         private Dictionary<int, double[]> _boundCond = new Dictionary<int, double[]>();
         private Sheet _sheet;
 
-        private double[] _point;
+        private int? _numberPoint;
 
         private bool _move = false;
 
@@ -56,8 +56,11 @@ namespace Korzunina.Visualization
             _draw.DrawAxis(sender, e, _camera);
             _draw.DrawModel(sender, e, _camera.CreatProjectMatrix(_A * _map), _sheet.AdjacentPoints);
 
-            if (_point != null)
-                _draw.DrawPoint(sender, e, _point);
+            if (_numberPoint != null)
+            {
+                var point = _camera.CreatProjectMatrix(_A * _map).GetVector(_numberPoint.Value);
+                _draw.DrawPoint(sender, e, point);
+            }
         }
 
         #region Перетаскивание рабочего поля
@@ -123,9 +126,7 @@ namespace Korzunina.Visualization
         private void btnReset_Click(object sender, EventArgs e)
         {
             _A = new Matrix(4, 4);
-            
             _boundCond.Clear();
-            lbPoints.Items.Clear();
 
             InitilizeObject();
             this.Invalidate();
@@ -176,9 +177,7 @@ namespace Korzunina.Visualization
 
         private void nudPoint_ValueChanged(object sender, EventArgs e)
         {
-            int pointIndex = (int)nudPoint.Value;
-
-            _point = _camera.CreatProjectMatrix(_A * _map).GetVector(pointIndex);
+            _numberPoint = (int)nudPoint.Value;
 
             this.Invalidate();
         }
@@ -190,7 +189,7 @@ namespace Korzunina.Visualization
 
             if (_boundCond.ContainsKey(numberPoint))
             {
-                _point = _camera.CreatProjectMatrix(_A * _map).GetVector(numberPoint);
+                _numberPoint = numberPoint;
 
                 this.Invalidate();
             }
@@ -198,14 +197,20 @@ namespace Korzunina.Visualization
 
         private void btnTransformation_Click(object sender, EventArgs e)
         {
+            if (_boundCond == null || _boundCond.Count < 1)
+            {
+                ShowMessage("Задайте ограничения ");
+                return;
+            }
+
             CreateListOfKe cloke = new CreateListOfKe(_sheet);
 
             List<double[,]> KeList = cloke.ListOfMatrixKe;
 
-            _boundCond.Add(1, new double[] { 1, 0, 0, 0 });
-            _boundCond.Add(841, new double[] { 841, -0.7, 0, 0 });
-            _boundCond.Add(300, new double[] { 300, 0, 2, -0.5 });
-            _boundCond.Add(500, new double[] { 500, 0, 0, 0.5 });
+            //_boundCond.Add(1, new double[] { 1, 0, 0, 0 });
+            //_boundCond.Add(841, new double[] { 841, -0.7, 0, 0 });
+            //_boundCond.Add(300, new double[] { 300, 0, 2, -0.5 });
+            //_boundCond.Add(500, new double[] { 500, 0, 0, 0.5 });
 
 
             GeneralizedMatrixAndBoundary gmab = new GeneralizedMatrixAndBoundary(_sheet, cloke, _boundCond.Values.ToList());

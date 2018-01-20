@@ -108,7 +108,7 @@ namespace Korzunina.Visualization.DrawLogic
         public void DrawPoint(object sender, PaintEventArgs e, double[] point)
         {
             SolidBrush brush = new SolidBrush(Color.Red);
-            e.Graphics.FillEllipse(brush, ToScreenX(point[0] / point[2]), ToScreenY(point[1] / point[2]), 5, 5);
+            e.Graphics.FillEllipse(brush, ToScreenX(point[0] / point[2]) - 3, ToScreenY(point[1] / point[2]) - 3, 6, 6);
         }
 
         public void Move(MouseEventArgs e)
