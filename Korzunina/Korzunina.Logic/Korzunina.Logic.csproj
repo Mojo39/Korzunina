@@ -41,13 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CreateListOfKe.cs" />
-    <Compile Include="GeneralizedMatrixAndBoundary.cs" />
+    <Compile Include="Algorithm\CreateListOfKe.cs" />
+    <Compile Include="Algorithm\GeneralizedMatrixAndBoundary.cs" />
+    <Compile Include="DeformationElasticSheet.cs" />
     <Compile Include="HelperClasses\Matrix.cs" />
-    <Compile Include="Cholesky.cs" />
+    <Compile Include="Algorithm\Cholesky.cs" />
     <Compile Include="HelperClasses\Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sheet.cs" />
+    <Compile Include="Algorithm\Sheet.cs" />
     <Compile Include="HelperClasses\VectorWork.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
