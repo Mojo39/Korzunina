@@ -48,10 +48,10 @@ namespace Korzunina.Visualization.DrawLogic
                     break;
 
                 case 1:
-                    r = new Matrix(new double[,] {{ 1,  0 ,  0 , 0 },
-                                                  { 0, cos,-sin, 0 },
-                                                  { 0, sin, cos, 0 },
-                                                  { 0,  0 ,  0 , 1 }});
+                    r = new Matrix(new double[,] {{ cos,-sin, 0, 0 },
+                                                  { sin, cos, 0, 0 },
+                                                  {  0,   0,  1, 0 },
+                                                  {  0,   0,  0, 1 }});
                     break;
 
                 case 2:

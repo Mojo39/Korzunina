@@ -218,9 +218,9 @@
             // 
             this.cbR.FormattingEnabled = true;
             this.cbR.Items.AddRange(new object[] {
-            "Оси абсцисс",
             "Оси ординат",
-            "Оси аппликат"});
+            "Оси аппликат",
+            "Оси абсцисс"});
             this.cbR.Location = new System.Drawing.Point(73, 41);
             this.cbR.Name = "cbR";
             this.cbR.Size = new System.Drawing.Size(121, 21);
