@@ -126,7 +126,7 @@ namespace Korzunina.Visualization
         {
             _A = new Matrix(4, 4);
             _boundCond.Clear();
-
+            lbPoints.DataSource = _boundCond.Values.ToList();
             InitilizeObject();
             this.Invalidate();
         }
